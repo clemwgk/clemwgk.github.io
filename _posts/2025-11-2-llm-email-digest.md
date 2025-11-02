@@ -32,10 +32,12 @@ I still read logs and made decisions, but I moved much faster: I learned just en
 This is what the code does:
 - Runs daily on **GitHub Actions** (cron).
 - Reads email via the **Gmail API (read-only)**, including archived mail (not just Inbox).
-- Extracts a **sentence-aware snippet** per message (with OTP/code masking and card "last-4" masking so they don't get misread as money).
+- Skips anything I sent (`-in:sent -from:me`).
+- Extracts a **sentence-aware snippet** per message (I mask OTP codes and card "last-4", but keep the email so I still notice important sign-ins).
 - Parses potential amounts, then flags actual **transaction-like alerts** using context (verbs near the amount, issuer cues, and negatives like "insurance cap").
 - Ranks candidates with a **JSON-only** output (no hallucinated IDs), then emails an **HTML + plaintext** digest using SMTP.
 - Has production-ish guardrails: **model fallback & retry/backoff**, a **kill switch**, and an **error email**.
+- Normalizes the model's output to plain text before rendering to avoid type-related crashes.
 
 You can find the [relevant code repo here](https://github.com/clemwgk/email-digest-assistant).
 
@@ -43,10 +45,10 @@ The current set-up looks like this:
 
 1. **Gmail OAuth** (Desktop app creds) → local `token.json` → Base64 → **GitHub Secrets** → reconstructed in Actions at runtime.  
 2. **Fetching emails** using the Gmail API, not just Inbox—**archived** messages are in scope too.  
-3. **Watermarking** off my own previously sent digest: search Sent for subject `AI Email Digest — …` and use that `internalDate`.  
-4. **Model call** with a **JSON-only** contract and a fallback list of models.  
-5. **Email delivery** via Gmail SMTP (app password).  
-6. **GitHub Actions**: cron in UTC, env secrets, kill switch, and timing logs in SGT + UTC.
+3. **Watermarking**: I keep a simple `last_sent_ts.txt`. Each run fetches a broad 3-day superset (`newer_than:3d in:anywhere -in:spam -in:trash -in:sent -from:me -subject:"AI Email Digest —"`) and then filters locally by Gmail's internal timestamp. If the pool is tiny, it falls back to 7 days.    
+5. **Model call** with a **JSON-only** contract and a fallback list of models.  
+6. **Email delivery** via Gmail SMTP (app password).  
+7. **GitHub Actions**: cron in UTC, env secrets, kill switch, and timing logs in SGT + UTC.
 
 ## Prequel: Creating a custom GPT as my “coach”
 
@@ -103,22 +105,21 @@ Here's some examples of misinterpretation and a GPT-generated write-up for what 
 Here's a summary of the changes made by ChatGPT on improving the code along the way. This section is entirely written by ChatGPT!
 
 ### 1) Smarter snippets (less chopping, more meaning)
-I replaced a “grab some fragments” approach with **complete sentence extraction**:
-- split text into sentences,  
-- score sentences for action words, dates, currency, deadlines,  
-- pick the top 2–3 within a length budget (default **500 chars**),  
-- fall back to intro sentences if nothing scores.
+I replaced a fragmenty approach with **sentence-aware extraction**:
+- if there's a money amount, pull a small window around it so context stays intact,
+- otherwise pick the single most action-y sentence (charges, deadlines, currencies),
+- trim to about 500 chars.
 
-This gives the model consistent context: “**A transaction of SGD 25.76 was made…**” rather than a chopped “… **76 was made…**”.
-
+This gives the model consistent context: "A transaction of SGD 25.76 was made..." rather than a chopped "... 76 was made...".
+ 
 ### 2) Financial alerts vs everything else
 I added explicit **positive** and **negative** cues:
 
-- **Positive**: “transaction alert”, “charged”, “spent”, “purchase”, “card ending …”, “merchant”, “withdrawal”, “transfer”.  
+- **Positive**: "transaction alert", "charged", "debited", "purchase(d)", "withdrawal", "transfer(red)", "authorized/unauthorized", "declined", "failed", "credited", "you've received". 
 - **Negative**: “statement/advice ready”, “balance summary”, “limit”, “price”, “rate”, “promotion”, “sale”, “coupon”.  
 - **Issuer domains** (configurable): `uobgroup.com, dbs.com, ocbc.com, citibank.com.sg`.  
-- **PayNow** is parsed as a transaction **only** if language indicates a completed transfer; the keyword alone doesn’t force it.
-
+- **PayNow** isn't special-cased; it only flags if the text actually says a transfer was credited/debited.
+ 
 ### 3) Categories & ranking you can reason about
 - **Type**: Call to Action vs For Information Only.  
 - **Category**: Legal / Government / Billing-Payment / Other.  
