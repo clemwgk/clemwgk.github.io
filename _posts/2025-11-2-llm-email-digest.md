@@ -1,6 +1,6 @@
 ---
 layout: post
-title: I built an AI Email Digest assistant (and learned a lot in public)
+title: I built an AI Email Digest assistant (and learned about leveraging LLMs)
 ---
 
 > **Note:** This post and the code referenced within the post is partly AI-generated. I used a custom GPT as my coach to accelerate learning and delivery!
