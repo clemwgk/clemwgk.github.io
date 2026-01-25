@@ -3,7 +3,7 @@ layout: post
 title: Two Days to MVP - Building a Reminder Bot with Claude Code
 ---
 
-Developments in the AI/LLM space have been moving fast. Since I first started working on my email digest, there have been a lot more advanced, agentic tools available to us. Claude Code in particular has been hugely raved about, and so I found myself giving it a try with this reminder bot project.
+Developments in the AI/LLM space have been moving fast. Since I first started working on my [LLM email digest](https://clemwgk.github.io/llm-email-digest/), there have been a lot more advanced, agentic tools available to us. Claude Code in particular has been hugely raved about, and so I found myself giving it a try with this reminder bot project.
 
 ## What's the problem?
 
