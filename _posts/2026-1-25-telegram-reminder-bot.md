@@ -9,7 +9,9 @@ Developments in the AI/LLM space have been moving fast. Since I first started wo
 
 First, let's set the problem stage. I wanted to lower the barrier to setting reminders. Why? At first glance, this is a solved problem, because there are many avenues through which I can set reminders, such as on Telegram (scheduled messages to self), or calendars on my phone. 
 
-But existing methods all involve me having to decide when I want these reminders to fire, AND I still need to mechanically set the timing, create the reminder myself, and such. And there's more to how I use reminders (and hopefully it's not just me) - what happens if I want to delay or snooze a reminder? What if I want to set a recurring reminder? What if for certain types of reminders, I know I want multiple reminders? What if I want to cancel a reminder? Heck, is there a way I can check if I've already set a reminder for a task? Right now, any of these things require me to go back to where I've set the original reminder and make the edits myself. I could do it myself, and maybe each time it's just a little bit of effort, but it compounds quickly.
+But existing methods all involve me having to decide when I want these reminders to fire, AND I still need to mechanically set the timing, create the reminder myself, and such. And there's more to how I use reminders (and hopefully it's not just me) - what happens if I want to delay or snooze a reminder? What if I want to set a recurring reminder? What if for certain types of reminders, I know I want multiple reminders? What if I want to cancel a reminder? Heck, is there a way I can check if I've already set a reminder for a task? 
+
+Right now, any of these things require me to go back to where I've set the original reminder and make the edits myself. I could do it myself, and maybe each time it's just a little bit of effort, but it compounds quickly. The desire to reduce cognitive load is amplified further by our position as new parents.
 
 Wouldn't it be great if a bot could help manage those things for me? 
 
