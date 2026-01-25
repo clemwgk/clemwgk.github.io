@@ -88,9 +88,9 @@ That's not right. I proposed cleaner logic:
 
 This explicit rule was better than Claude Code's initial attempt. The AI accepted the correction and implemented it.
 
-![Claude Code proposes options for /snooze behavior, and I define cleaner logic](/2025-01-telegram-reminder-bot/exchange2-snooze-1.png)
+![Claude Code proposes options for /snooze behavior, and I define cleaner logic](/2026-01-telegram-reminder-bot/exchange2-snooze-1.png)
 
-![Claude Code accepts the correction and implements the fix](/2025-01-telegram-reminder-bot/exchange2-snooze-2.png)
+![Claude Code accepts the correction and implements the fix](/2026-01-telegram-reminder-bot/exchange2-snooze-2.png)
 
 ### Example 2: Reframing the problem entirely
 
@@ -100,9 +100,9 @@ I pushed back: that's the wrong approach. The real issue was that the LLM was co
 
 The fix wasn't deterministic day detection. It was adding linguistic context to the LLM prompt explaining Singaporean English patterns. More generalizable, addresses the root cause.
 
-![Claude Code investigates the Friday parsing bug](/2025-01-telegram-reminder-bot/exchange3-singlish-1.png)
+![Claude Code investigates the Friday parsing bug](/2026-01-telegram-reminder-bot/exchange3-singlish-1.png)
 
-![I push back on the approach — the issue is Singaporean English, not day detection](/2025-01-telegram-reminder-bot/exchange3-singlish-2.png)
+![I push back on the approach — the issue is Singaporean English, not day detection](/2026-01-telegram-reminder-bot/exchange3-singlish-2.png)
 
 And then I had to refine further: the users (my partner and I) don't actually speak Singlish with particles like "lah" or "leh". We speak closer to standard Singaporean English — grammatical quirks but no particles. Claude Code had researched Singlish grammar and drafted a comprehensive prompt, but I knew our context better.
 
