@@ -118,13 +118,17 @@ So I ironed this out with Claude Code. This was my preferred version, which Clau
 - If there's only one argument and it's a direct reply, the replied message provides the ID and the single argument is the duration
 - If there's only one argument without a direct reply, we don't have enough info — error out
 
-[SCREENSHOT: Exchange 2 - /snooze design pushback]
+![/snooze exchange](/2026-01-telegram-reminder-bot/exchange2-snooze-1.png) 
+
+![/snooze exchange](/2026-01-telegram-reminder-bot/exchange2-snooze-2.png) 
 
 ### Example 2: Reframing the problem entirely
 
 We hit a bug where "Remind me Friday if go back Florence to bring back the breastfeeding milk" was scheduled for Wednesday instead of Friday. Claude Code proposed adding keyword fallback for day-of-week detection.
 
-[SCREENSHOT: Exchange 3 - Singlish reframing]
+![singlish reframe](/2026-01-telegram-reminder-bot/exchange3-singlish-1.png)
+
+![singlish reframe](/2026-01-telegram-reminder-bot/exchange3-singlish-2.png)
 
 This is where I used my domain knowledge to steer. I overrode Claude's assessment here because I believed that the real issue was that the LLM was confused by Singaporean English grammar patterns, such as preposition omission ("go Florence" instead of "go to Florence") and subject dropping ("if go back" instead of "if I go back"). It's a bit strange that day-of-week detection was Claude's assessment when Friday was spelt out in full; I can't even say that it had missed because we used "Fri" instead of "Friday"!
 
