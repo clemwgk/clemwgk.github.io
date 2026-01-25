@@ -3,11 +3,37 @@ layout: post
 title: Two Days to MVP - Building a Reminder Bot with Claude Code
 ---
 
-I'm not a software engineer. I'm someone who picked up R a few years ago for data analysis and has been curious about building things ever since. So when I wanted to build a Telegram reminder bot for my partner and me, I turned to Claude Code — an AI coding assistant — to see how far I could get.
+Developments in the AI/LLM space have been moving fast. Since I first started working on my [LLM email digest](https://clemwgk.github.io/llm-email-digest/), there have been a lot more advanced, agentic tools available to us. Claude Code in particular has been hugely raved about, and so I found myself giving it a try with this reminder bot project.
 
-The answer: further than I expected. In about two days, I had a working MVP deployed on Google Cloud's free tier, reliably parsing natural language reminders and sending them to both of us. What I learned along the way was less about the code itself and more about how to work *with* an AI to build something.
+## What's the problem?
 
-## What I built
+First, let's set the problem stage. I wanted to lower the barrier to setting reminders. Why? At first glance, this is a solved problem, because there are many avenues through which I can set reminders, such as on Telegram (scheduled messages to self), or calendars on my phone. 
+
+But existing methods all involve me having to decide when I want these reminders to fire, AND I still need to mechanically set the timing, create the reminder myself, and such. And there's more to how I use reminders (and hopefully it's not just me) - what happens if I want to delay or snooze a reminder? What if I want to set a recurring reminder? What if for certain types of reminders, I know I want multiple reminders? What if I want to cancel a reminder? Heck, is there a way I can check if I've already set a reminder for a task? Right now, any of these things require me to go back to where I've set the original reminder and make the edits myself. I could do it myself, and maybe each time it's just a little bit of effort, but it compounds quickly.
+
+Wouldn't it be great if a bot could help manage those things for me? 
+
+I think the Minimum Viable Product (MVP) version is: I tell the bot to remind me to do something at when, and that "when" dictates when the bot sends the reminder to me. So I still have to spell it out, but I don't have to set the reminder myself.
+
+In a well-developed version (we're not there yet), I think it would look like this: I send a message to the bot with the reminder text, the bot is able to parse the reminder text, classify it, then apply a schedule of when the reminders would be sent based on the type. 
+
+I'm probably only a bit further along from the MVP version, but I'd like to think that the reminder bot I've got has already been helpful for me. Check it out [here](https://github.com/clemwgk/reminder-system-claude/blob/claude/automate-reminders-LInTS/README.md)
+
+I consider myself comfortable to learn about technical things, but ultimately I'm not a software engineer, so writing a complex script to run the bot, setting the "infrastructure" to intake, process, and output the reminder, all that is stuff I'm not familiar with. Claude Code was really helpful here, and it's crazy to me that in about two days, I had a working MVP deployed on Google Cloud's free tier, reliably parsing natural language reminders and sending them to my wife and I. 
+
+As with the LLM email digest, what I learned along the way was less about the code itself and more about how to work *with* an AI to build something.
+
+## Prerequisites - Claude Code?
+
+I'm not sure that it _had_ to be in Claude Code. But I did it in Claude Code because I have a Pro subscription (at the time of writing). It's possible that Codex (OpenAI's version of Claude Code, to my understanding) could do something similar too, but I didn't try it in Codex.
+
+Honestly, that's all I think I needed. Oh, and a Github repo for this bot that I connected my Claude account to. Claude Code guided me through the rest in terms of setting up the infrastructure (e.g. Google Cloud account).
+
+By the way, I've also been experimenting with using Claude Code for non-technical tasks. It's been really great there too, and even Claude in browser hasn't been half bad - yeah I might be able to do it quicker myself, but I could give it a task to work on in the background while I do something in parallel. 
+
+My experiences with ChatGPT and Cluade so far - especially the recent ones with Claude Code and the in-browser Claude - make me wonder if I can get access to "vanilla" Claude/Claude Code at work. It feels to me like a lot of wasted potential that comes down to permissions and access issues - we have these powerful tools but we can't fully benefit unless they can interact with the other tools we use at work? Anyway that's a different conversation I guess.
+
+## What I built using Claude Code
 
 A Telegram reminder bot that:
 - Accepts natural language input ("remind me to pay the electricity bill next Saturday")
@@ -20,7 +46,7 @@ The tech stack: Python, Telegram Bot API, SQLite, Gemini for natural language pa
 
 ## The architecture
 
-Claude Code sketched this diagram early in the conversation, and honestly, this was one of the most helpful things. As a non-engineer, having a visual map of what we were building made everything else easier to follow.
+Claude Code sketched this diagram early in the conversation, and honestly, this was one of the most helpful things. As a non-engineer, having a visual map of the plumbing for what we were building made everything else easier to follow.
 
 ```
 ┌─────────────────────────────────────────┐
@@ -67,56 +93,54 @@ This cycle repeated dozens of times. What made it work:
 
 2. **Iterative debugging with screenshots**: I'd share a screenshot of a bug, Claude Code would diagnose and propose a fix, I'd refine based on what I knew about our actual usage.
 
-3. **Constraints were respected**: I told Claude Code "free tier only" and we ended up with Gemini 2.5-flash-lite (1000 requests/day). I said "privacy-conscious" and we went with self-hosted SQLite, no third-party logging. "Mobile-first" led to shortened UI elements after I showed real device screenshots.
+3. **Constraints were respected**: For example, I told Claude Code "free tier only" and we ended up with Gemini 2.5-flash-lite (1000 requests/day). I said "privacy-conscious" and we went with self-hosted SQLite, no third-party logging.
 
-## The interesting part: when I had to push back
+## Steering and challenging AI
 
-The bot didn't come out perfect on the first try. Some of the most valuable moments were when I had to correct Claude Code's approach.
+Remember that this is ultimately about working _with_ AI, so you (and I!) should be mindful to steer and challenge the AI appropriately. Sometimes it's a matter of subjective judgement, sometimes it's a matter of you having the domain knowledge to override what the AI model thinks.
 
 ### Example 1: Defining cleaner logic
 
-Claude Code proposed a `/snooze` command behavior that was... confusing. If you replied to a message about reminder ID 53 and typed `/snooze 48 10`, the initial implementation would:
+Claude Code proposed a `/snooze` command behavior that was... confusing. The snooze command is meant to snooze a sent reminder, much like how you'd snooze an alarm. There's two arguments needed for a snooze function to work: (1) Which reminder am I trying to snooze, and (2) for how long? The first argument (which reminder) has contextual nuance - for example, if I directly replied to a reminder, it's reasonable to think that this was the reminder I wanted to snooze, and /snooze could ingest that reminder ID into its argument.
+
+But what if I replied to a reminder, and still snoozed with two arguments? Say, if I replied to a message about reminder ID 53 and typed `/snooze 48 10`, should it snooze reminder ID 48 because I explicitly spelt out in my command? Or should it snooze reminder ID 53 which I replied to?
+
+The initial implementation would do neither of that. It would:
 - Extract ID 53 from the replied message
 - Interpret 48 as the minutes argument
 - Ignore 10
 - Result: snooze reminder 53 for 48 minutes
 
-That's not right. I proposed cleaner logic:
-- If there are two numerical arguments, they're always {id, minutes} — regardless of whether you replied to a message
+I thought this looks wrong, but on reflection, I think this could have been a reasonable approach, except that it felt "wrong" to me because I as the user did not find it intuitive at all. In other words, I think the way to approach this is to think about which choice would make the most sense to the user, and it may well be that for someone else, the initial implementation felt right.
+
+So I ironed this out with Claude Code. This was my preferred version, which Claude Code implemented:
+- If there are two numerical arguments, they're always {id, minutes} — regardless of whether you replied to a message. So in the example, `/snooze 48 10` would snooze reminder ID 48 for 10 minutes, even if I had sent that while replying to reminder ID 53.
 - If there's only one argument and it's a direct reply, the replied message provides the ID and the single argument is the duration
 - If there's only one argument without a direct reply, we don't have enough info — error out
 
-This explicit rule was better than Claude Code's initial attempt. The AI accepted the correction and implemented it.
-
-![Claude Code proposes options for /snooze behavior, and I define cleaner logic](/2026-01-telegram-reminder-bot/exchange2-snooze-1.png)
-
-![Claude Code accepts the correction and implements the fix](/2026-01-telegram-reminder-bot/exchange2-snooze-2.png)
+[SCREENSHOT: Exchange 2 - /snooze design pushback]
 
 ### Example 2: Reframing the problem entirely
 
 We hit a bug where "Remind me Friday if go back Florence to bring back the breastfeeding milk" was scheduled for Wednesday instead of Friday. Claude Code proposed adding keyword fallback for day-of-week detection.
 
-I pushed back: that's the wrong approach. The real issue was that the LLM was confused by Singaporean English grammar patterns — preposition omission ("go Florence" instead of "go to Florence"), subject dropping ("if go back" instead of "if I go back").
+[SCREENSHOT: Exchange 3 - Singlish reframing]
 
-The fix wasn't deterministic day detection. It was adding linguistic context to the LLM prompt explaining Singaporean English patterns. More generalizable, addresses the root cause.
+This is where I used my domain knowledge to steer. I overrode Claude's assessment here because I believed that the real issue was that the LLM was confused by Singaporean English grammar patterns, such as preposition omission ("go Florence" instead of "go to Florence") and subject dropping ("if go back" instead of "if I go back"). It's a bit strange that day-of-week detection was Claude's assessment when Friday was spelt out in full; I can't even say that it had missed because we used "Fri" instead of "Friday"!
 
-![Claude Code investigates the Friday parsing bug](/2026-01-telegram-reminder-bot/exchange3-singlish-1.png)
+Once the assessment was updated, the fix was adding linguistic context to the LLM prompt explaining standard Singaporean English patterns. There, Claude can proceed to execute by updating the prompt in the bot script.
 
-![I push back on the approach — the issue is Singaporean English, not day detection](/2026-01-telegram-reminder-bot/exchange3-singlish-2.png)
-
-And then I had to refine further: the users (my partner and I) don't actually speak Singlish with particles like "lah" or "leh". We speak closer to standard Singaporean English — grammatical quirks but no particles. Claude Code had researched Singlish grammar and drafted a comprehensive prompt, but I knew our context better.
+How do I know that I was definitely right on this one? I think I don't know 100% for sure. But what gives me confidence is: (1) After Claude updated the bot prompt, I tried the exact same reminder message and I didn't run into the issue, and (2) knowing from other contexts that Singaporean English patterns (especially outside of formal environments) can be a bit odd for the rest of the world (domain knowledge!!)
 
 ## What I learned
 
-**1. AI as collaborator, not replacement.** The best solutions came from combining AI's technical capabilities with my domain knowledge. Claude Code could write the code, but I knew what "two arguments" should mean for `/snooze`, and I knew what kind of English we actually speak.
+**1. AI as collaborator, not replacement.** The best solutions came from combining AI's technical capabilities with my domain knowledge. Claude Code could write the code, but I still need to steer.
 
-**2. Iterate with real usage.** The first solution is rarely the best. Bugs I caught from actually using the bot on my phone (like formatting that looked fine on desktop but broke on mobile) were things Claude Code couldn't anticipate.
+**2. Iterate with real usage.** The first solution is rarely the best. Bugs I caught from actually using the bot myself (like formatting that looked fine on desktop but broke on mobile) were things Claude Code couldn't anticipate. And given how quickly Claude Code enabled me to set up the MVP, iterate with real usage is a path of low (not zero!) resistance.
 
-**3. Know when to use LLM vs deterministic logic.** We used the LLM for fuzzy parsing — turning "remind me tmr to buy groceries" into structured data. But for commands like "cancel" and "list", we added deterministic keyword fallback before the LLM call. And for precise control, we used slash commands (`/copy` instead of letting the LLM guess when to duplicate).
+**3. Not everything has to be LLM.** LLMs are great for parsing natural language, turning "remind me tmr to buy groceries" into structured data. But not everything needs to or should be parsed by LLMs. LLMs are still inherently probabilistic, and there could be false positive risks. As with most things, a balance between the two is probably the right way to go.
 
-**4. Context matters.** The Singaporean English fix was more valuable than a generic "day detection" hack because it addressed the actual user base.
-
-## Features built
+## Some of the features built (at time of writing)
 
 | Command | What it does |
 |---------|--------------|
@@ -133,6 +157,6 @@ UX: inline buttons for quick snooze/done actions, direct reply support for all c
 
 ## Closing thoughts
 
-I went in not knowing Python and came out with a deployed, working reminder bot that my partner and I actually use daily. Claude Code did the heavy lifting on the code, but the moments where I had to push back or refine — those were when the real learning happened.
+I went in not knowing Python and came out with a deployed, working reminder bot that my partner and I actually use daily. It was really easy to use Claude Code to implement this, with Claude Code doing the heavy lifting on the code and I scoping, steering, and challenging the AI at various points.
 
-The workflow of "describe problem → AI proposes → I refine → AI implements → test on actual device" is powerful. It's not magic, and the AI isn't always right. But for someone learning to build software, having a collaborator that can write the code while you focus on the logic and the domain knowledge — that's a real accelerant.
+The workflow of "describe problem → AI proposes → I refine → AI implements → test on actual device" is powerful. It's not magic, and the AI isn't always right. But for a non-software engineer, having a collaborator that can write the code while you focus on the logic and the domain knowledge is a real accelerant.
