@@ -1,13 +1,41 @@
 ---
 layout: post
-title: Two Days to MVP - Building a Reminder Bot with Claude Code
+title: (WIP post) Two Days to MVP - Building a Reminder Bot with Claude Code
 ---
 
-I'm not a software engineer. I'm someone who picked up R a few years ago for data analysis and has been curious about building things ever since. So when I wanted to build a Telegram reminder bot for my partner and me, I turned to Claude Code — an AI coding assistant — to see how far I could get.
+Note: This post is partially drafted by Claude Code.
 
-The answer: further than I expected. In about two days, I had a working MVP deployed on Google Cloud's free tier, reliably parsing natural language reminders and sending them to both of us. What I learned along the way was less about the code itself and more about how to work *with* an AI to build something.
+Developments in the AI/LLM space have been moving fast. Since I first started working on my email digest, there have been a lot more advanced, agentic tools available to us. Claude Code in particular has been hugely raved about, and so I found myself giving it a try with this reminder bot project.
 
-## What I built
+## What's the problem?
+
+First, let's set the problem stage. I wanted to lower the barrier to setting reminders. Why? At first glance, this is a solved problem, because there are many avenues through which I can set reminders, such as on Telegram (scheduled messages to self), or calendars on my phone. 
+
+But existing methods all involve me having to decide when I want these reminders to fire, AND I still need to mechanically set the timing, create the reminder myself, and such. And there's more to how I use reminders (and hopefully it's not just me) - what happens if I want to delay or snooze a reminder? What if I want to set a recurring reminder? What if for certain types of reminders, I know I want multiple reminders? What if I want to cancel a reminder? Heck, is there a way I can check if I've already set a reminder for a task? Right now, any of these things require me to go back to where I've set the original reminder and make the edits myself. I could do it myself, but it feels more effortful to manage than I'd like.
+
+Wouldn't it be great if a bot could help manage those things for me? 
+
+The Minimum Viable Product (MVP) version is: I tell the bot to remind me to do something at when, and that "when" dictates when the bot sends the reminder to me. So I still have to spell it out, but I don't have to set the reminder myself.
+
+In a well-developed version (we're not there yet), I think it would look like this: I send a message to the bot with the reminder text, the bot is able to parse the reminder text, classify it, then apply a schedule of when the reminders would be sent based on the type. 
+
+I'm probably only a bit further along from the MVP version, but I'd like to think that the reminder bot I've got has already been helpful for me. Check it out [here](https://github.com/clemwgk/reminder-system-claude/blob/claude/automate-reminders-LInTS/README.md)
+
+I consider myself comfortable to learn about technical things, but ultimately I'm not a software engineer, so writing a complex script to run the bot, setting the "infrastructure" to intake, process, and output the reminder, all that is stuff I'm not familiar with. Claude Code was really helpful here, and it's crazy to me that in about two days, I had a working MVP deployed on Google Cloud's free tier, reliably parsing natural language reminders and sending them to my wife and I. 
+
+As with the LLM email digest, what I learned along the way was less about the code itself and more about how to work *with* an AI to build something.
+
+## Prerequisites - Claude Code?
+
+I'm not sure that it _had_ to be in Claude Code. But I did it in Claude Code because I have a Pro subscription (at the time of writing). It's possible that Codex (OpenAI's version of Claude Code, to my understanding) could do something similar too, but I didn't try it in Codex.
+
+Honestly, that's all I think I needed. Claude Code guided me through the rest in terms of setting up the infrastructure (e.g. Google Cloud account).
+
+By the way, I've also been experimenting with using Claude Code for non-technical tasks. It's been really great there too, and even Claude in browser hasn't been half bad - yeah I might be able to do it quicker myself, but I could give it a task to work on in the background while I do something in parallel. 
+
+My experiences with ChatGPT and Cluade so far - especially the recent ones with Claude Code and the in-browser Claude - make me wonder if I can get access to "vanilla" Claude/Claude Code at work. It feels to me like a lot of wasted potential that comes down to permissions and access issues - we have these powerful tools but we can't fully benefit unless they can interact with the other tools we use at work? Anyway that's a different conversation I guess.
+
+## What I built using Claude Code
 
 A Telegram reminder bot that:
 - Accepts natural language input ("remind me to pay the electricity bill next Saturday")
