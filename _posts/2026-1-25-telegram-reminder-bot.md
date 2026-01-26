@@ -46,6 +46,16 @@ A Telegram reminder bot that:
 
 The tech stack: Python, Telegram Bot API, SQLite, Gemini for natural language parsing. Self-hosted on a Google Cloud free tier VM.
 
+Here's two simple examples of the bot in action. Both screenshots were taken post-hoc.
+
+![bot-example-1](/2026-01-telegram-reminder-bot/Screenshot%202026-01-26%20095111.png)
+
+Notice that the reminder was marked as "shared". Because I said "remind us", this was parsed as a shared reminder and will be sent to both my wife and I.
+
+![bot-example-2](/2026-01-telegram-reminder-bot/Screenshot%202026-01-26%20095136.png)
+
+In this example, you see the reminder marked as "Done" because I had marked it as done afterward.
+
 ## The architecture
 
 Claude Code sketched this diagram early in the conversation, and honestly, this was one of the most helpful things. As a non-engineer, having a visual map of the plumbing for what we were building made everything else easier to follow.
