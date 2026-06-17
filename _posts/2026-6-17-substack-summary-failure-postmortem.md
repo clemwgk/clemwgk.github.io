@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Specs Aren't Enough: Reflecting On Failure Modes in Automated Workflows
+title: Specs Aren't Enough - Reflecting On Failure Modes in Automated Workflows
 ---
 
 One of the most helpful things in my AI learning journey has been the sheer abundance of AI-relevant material out there. Many of these articles come with linked prompts or guides that I'd want on hand for future reference, even if I don't need them today.
