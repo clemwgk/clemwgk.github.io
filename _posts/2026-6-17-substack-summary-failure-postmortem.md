@@ -55,9 +55,9 @@ Either way, no error or warning was thrown. The output doc looked structurally c
 
 The irony is that the failure I missed is the one I can prove. Because I never caught it until I started this retro, I can open the replacement today and find the failure frozen in the artifact (the Google Doc). The evidence survived because it's in the output, even though it went unnoticed for months.
 
-The failure I caught is the one I can't prove anymore; I can only recount it from memory. I deleted the original output doc when I remade it, and the raw March session logs have been pruned from my laptop by Claude Code's retention policy. The source page itself was rewritten between the run and my review. I have the model's stated intent to condense and my memory of catching it, but otherwise no other artifacts prove it. The evidence eroded in the weeks between the session and the retro.
+The failure I caught is the one I can't prove anymore; I can only recount it from memory. I deleted the original output doc when I remade it, and the raw March session logs have been pruned from my laptop by Claude Code's retention policy. The source page itself was rewritten between the run and my review. I have the model's stated intent to condense and my memory of catching it, but no artifacts prove it. The evidence eroded in the weeks between the session and the retro.
 
-I also considered that maybe the model didn't fail at all, and that the skill instruction _at that time_ simply didn't specify verbatim extraction. But when Claude couldn't find any indication in the skill change history or session logs that the skill instruction had changed around then.
+I also considered that maybe the model didn't fail at all, and that the skill instruction _at that time_ simply didn't specify verbatim extraction. But Claude couldn't find any indication in the skill change history or session logs that the skill instruction had changed around then.
 
 **What are my learning points here?**
 
