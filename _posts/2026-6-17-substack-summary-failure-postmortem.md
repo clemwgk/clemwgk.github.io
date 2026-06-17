@@ -9,7 +9,7 @@ In February this year, I built a Claude Code skill, `/substack-summary`, that su
 
 The skill has one rule that matters above all others: linked resources get extracted **verbatim**, not summarized. These resources were often prompts written by the article author, and I wanted them word-for-word so I could study how the prompts were constructed. I ran the skill at least four times since then, and the only complaint I raised was about section ordering, not content quality. It looked clean. It wasn't.
 
-This post is a retro on my learning lessons and what I took away. **TL;DR: "don't trust, verify"** (yes, the crypto ethos!). The resources weren't copied verbatim, despite the spec demanding exactly that. When we delegate to AI, we have to build the discipline to check whether the spec was followed, at the time it matters, before the evidence is gone. Evals and monitoring are the implementation of that discipline.
+This post is a retro on my learning lessons and what I took away. **TL;DR: "don't trust, verify"** (yes, the crypto ethos!). The resources weren't copied verbatim, despite the spec demanding exactly that. When we delegate to AI, we have to build the discipline in the form of evals and monitoring to check whether the spec was followed before the evidence is gone.
 
 ## What the skill does
 
@@ -19,11 +19,11 @@ The spec in the SKILL.md is explicit: "extract **full verbatim text content** â€
 
 ## The problems I saw
 
-Running the skill at least four times surfaced a handful of problems. These were visible, and therefore fixable, even if I didn't always choose to fix them.
+The sessions running the skill surfaced a handful of problems. These were visible, and therefore fixable, even if I didn't always choose to fix them.
 
 The biggest was section ordering. The first version of the skill produced the Google Doc backwards, with linked resources at the top and the executive summary at the bottom. The cause was a last-in-first-out bug: the helper script inserted each section at position 1 in the document body, so the last section ended up on top. This was the only quality complaint I raised in those sessions.
 
-I think this is probably a small instance of a cascade failures, where one fault propagates into the next. A latent authoring error (the LLM that set up the skill hard-coded "always insert at position 1") sat dormant until a later instance dutifully ran the misconfigured helper, at which point it surfaced as a visibly broken doc. Context degradation could be the underlying root failure here: this was before 1M-context models, so the instance that wrote the skill may have lost track of how "always position 1" would interact with the rest of the skill instructions.
+I think this is probably a small instance of a cascade failures, where one fault "cascades" or propagates into the next. A latent authoring error (the LLM that set up the skill hard-coded "always insert at position 1") sat dormant until a later instance dutifully ran the misconfigured helper, at which point it surfaced as a visibly broken doc. Context degradation could be the underlying root failure here: this was before 1M-context models, so the Claude instance that wrote the skill may have lost track of how "always position 1" would interact with the rest of the skill instructions.
 
 There were a few other problems that were fixable, but none painful enough to act on, so I lived with them for at least a few runs before asking Claude to update the skill.
 
@@ -53,9 +53,9 @@ Either way, no error or warning was thrown. The output doc looked structurally c
 
 ## Artifacts, Evals, and Monitoring
 
-The irony is that the failure I missed is the one I can prove. Because I never caught it until I started this retro, I can open the replacement today and find the failure frozen in the artifact. The evidence survived because it's in the output, even though it went unnoticed for months.
+The irony is that the failure I missed is the one I can prove. Because I never caught it until I started this retro, I can open the replacement today and find the failure frozen in the artifact (the Google Doc). The evidence survived because it's in the output, even though it went unnoticed for months.
 
-The failure I caught is the one I can't prove anymore; I can only recount it from memory. I deleted the original output doc when I remade it, and the raw March session logs have been pruned from my laptop by Claude Code's retention policy. The source page itself was rewritten between the run and my review. I have the model's stated intent to condense and my memory of catching it, but nothing else. The evidence eroded in the weeks between the session and the retro.
+The failure I caught is the one I can't prove anymore; I can only recount it from memory. I deleted the original output doc when I remade it, and the raw March session logs have been pruned from my laptop by Claude Code's retention policy. The source page itself was rewritten between the run and my review. I have the model's stated intent to condense and my memory of catching it, but otherwise no other artifacts prove it. The evidence eroded in the weeks between the session and the retro.
 
 I also considered that maybe the model didn't fail at all, and that the skill instruction _at that time_ simply didn't specify verbatim extraction. But when Claude couldn't find any indication in the skill change history or session logs that the skill instruction had changed around then.
 
@@ -67,12 +67,12 @@ So how do we address it? The constraint is that ground truth has a shelf life. T
 
 Evaluation and monitoring at (or near) the moment of the run is key. In my view they aren't the same thing, but both matter: evaluation asks "is the output right?", and monitoring asks "is the process broken?".
 
-For an ad-hoc, manually triggered skill, eval is probably the more important piece. If I were rebuilding this skill today, I'd add a post-run verification step, preferably something deterministic that an agent could run via a pre-written Python script. Even something lightweight would help: flag sections that are suspiciously short, check for placeholder text like "click here" or "view code," compare the section count against the number of resources identified. The replacement doc would have failed a placeholder-text check immediately. I just didn't have one.
+For an ad-hoc, manually triggered skill, eval might be the more important piece. If I were rebuilding this skill today, I'd add a post-run verification step, preferably something deterministic that an agent could run via a pre-written Python script. Even something lightweight would help: flag sections that are suspiciously short, check for placeholder text like "click here" or "view code," compare the section count against the number of resources identified. The replacement doc would have failed a placeholder-text check immediately. I just didn't have one.
 
-I would also want real-time logging instead of after-the-fact reconstruction. A structured log at the moment of the run would have captured what was fetched, what was written, and whether they matched, before the source page got rewritten and the session logs got pruned.
+I would also want real-time logging instead of after-the-fact reconstruction. A structured log at the moment of the run would have captured what was fetched, what was written, and whether they matched, before the source page got rewritten and the session logs got pruned. Even if I didn't look at the log at the time, it would be helpful for any retro.
 
 The good news is that today's LLMs also enable better agentic QA. The best QA will always be the human, but having an agent spin up subagents to QA its own work is a reasonable compromise, and I imagine that's the way forward for low-stakes tasks, reserving human QA for the highest stakes. I can see myself doing exactly that: if I spend my own time QA-ing the workflow on every run, did the automation really save me any bandwidth? The point is to tier the QA and check the output _selectively_.
 
-For a routinely scheduled automation, monitoring becomes equally important. How do we even know the process ran at all? The process needs to be suitably noisy, so that failures are noisy too, rather than silent. I recently started trialing a script to auto-archive and delete Gmail, and I have it email me after each run as a kind of "proof of work". Failures in the process would be "noisy" (visible) - the moment that email says nothing happened, or doesn't arrive on schedule at all.
+For a routinely scheduled automation, monitoring becomes equally important. How do we even know the process ran at all? The process needs to be suitably noisy, so that failures are noisy too, rather than silent. I recently started trialing a script to auto-archive and delete Gmail, and I have it email me after each run as a kind of "proof of work" (an artifact!). Failures in the process would be "noisy" (visible) - the moment that email says nothing happened, or doesn't arrive on schedule at all.
 
-Stepping back, the core lesson is a mindset one: when we delegate to AI, we have to build **the discipline** to check whether the spec was followed, at the time it matters, before the evidence is gone. Evals and monitoring are just the implementation of that discipline.
+Stepping back, the core lesson is a mindset one: when we delegate to AI, we have to build the discipline to check whether the spec was followed, at the time it matters, before the evidence is gone. Evals and monitoring are just the implementation of that discipline.
