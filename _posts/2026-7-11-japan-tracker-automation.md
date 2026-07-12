@@ -133,11 +133,9 @@ Within the logger's four-hour cycle, the GitHub Actions job has dropped the mess
 
 ![The Claude Code cloud session starting its daily run and picking up the lead](/2026-07-japan-tracker-automation/processor-run-start.png)
 
-At 8:00am the next morning the processor (the daily Claude Code routine) wakes up. This is its session transcript, with the history of past daily runs in the panel on the right. It finds the pending Inbox row for the Etajima Water Bridge, claims it, classifies it as scenic, and goes off to research what "etajime water bridge" actually is.
-
 ![The end of the same session: record written, run logged, Telegram alert sent](/2026-07-japan-tracker-automation/processor-run-complete.png)
 
-The tail of that same session. The processor identified the lead as the Etajima Water Bridge in Hiroshima (fixing my spelling along the way), checked it wasn't a duplicate, created the record, marked the Inbox row processed, and sent the Telegram confirmation you saw in the first screenshot.
+At 8:00am the next morning the processor (the daily Claude Code routine) wakes up. This is its session transcript, with the history of past daily runs in the panel on the right. It finds the pending Inbox row for the Etajima Water Bridge, claims it, classifies it as scenic, and goes off to research what "etajime water bridge" actually is. The processor identified the lead as the Etajima Water Bridge in Hiroshima (fixing my spelling along the way), checked it wasn't a duplicate, created the record, marked the Inbox row processed, and sent the Telegram confirmation you saw in the first screenshot.
 
 ![The Scenic table with the final enriched record](/2026-07-japan-tracker-automation/scenic-final-record.png)
 
