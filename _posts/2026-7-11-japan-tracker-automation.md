@@ -117,6 +117,32 @@ Now that the process was split into the logging and processing cleanly, monitori
 
 There are a couple of other improvements too. In v1, the whole batch stopped on any failure, because the ephemeral queue made skipping unsafe (you might lose the skipped message forever). Now the raw message is durable in the Inbox, so the processor can mark a bad lead "error," retry it later, and keep going. And the two halves (logger and processor) watch each other through Airtable: the logger flags a stalled processor, and the processor flags a stalled logger. A dead component can no longer be invisible.
 
+## An example
+
+Here's v2 running end-to-end on one real lead, so the moving parts above become concrete. Each screenshot is one hop through the diagram.
+
+![My Telegram channel: the forwarded lead on July 10, and the processor's confirmation the next morning](/2026-07-japan-tracker-automation/telegram-lead-and-confirmation.jpg)
+
+This is the Telegram channel, and it's the only surface I have to touch. On Jul 10, I sent in a lead: "etajime water bridge, saw it on tiktok" (typo included, it was actually "Etajima"). The next message in the channel is the processor's confirmation, which arrived the following morning. Everything between those two bubbles is the pipeline's job. 
+
+Let's walk through what the pipeline did.
+
+![The Airtable Inbox table, with the water bridge lead in the bottom row](/2026-07-japan-tracker-automation/inbox-raw-lead.png)
+
+Within the logger's four-hour cycle, the GitHub Actions job has dropped the message into the Inbox table in Airtable. Each row is one raw Telegram message with its `update_id` and timestamps; the bottom row is our lead, stored verbatim, waiting in the tray.
+
+![The Claude Code cloud session starting its daily run and picking up the lead](/2026-07-japan-tracker-automation/processor-run-start.png)
+
+At 8:00am the next morning the processor (the daily Claude Code routine) wakes up. This is its session transcript, with the history of past daily runs in the panel on the right. It finds the pending Inbox row for the Etajima Water Bridge, claims it, classifies it as scenic, and goes off to research what "etajime water bridge" actually is.
+
+![The end of the same session: record written, run logged, Telegram alert sent](/2026-07-japan-tracker-automation/processor-run-complete.png)
+
+The tail of that same session. The processor identified the lead as the Etajima Water Bridge in Hiroshima (fixing my spelling along the way), checked it wasn't a duplicate, created the record, marked the Inbox row processed, and sent the Telegram confirmation you saw in the first screenshot.
+
+![The Scenic table with the final enriched record](/2026-07-japan-tracker-automation/scenic-final-record.png)
+
+And the output: a structured row in the Scenic table, with English and Japanese names, region, prefecture, and a maps link. This becomes a lightly-researched entry with sufficient first-pass detail I can reference later.
+
 ## Learnings and reflections
 
 Even a seemingly simple automated workflow surfaced issues. Here are my key takeaways:
